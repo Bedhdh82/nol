@@ -1,0 +1,181 @@
+local repo = 'https://raw.githubusercontent.com/deividcomsono/Obsidian/main/'
+
+local Library = loadstring(game:HttpGet(repo .. 'Library.lua'))()
+local ThemeManager = loadstring(game:HttpGet(repo .. 'addons/ThemeManager.lua'))()
+local SaveManager = loadstring(game:HttpGet(repo .. 'addons/SaveManager.lua'))()
+local Options = Library.Options
+local Toggles = Library.Toggles
+
+
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+local Players = game:GetService("Players")
+local Workspace = game:GetService("Workspace")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+
+if not table.clone then
+    table.clone = function(t)
+        local nt = {}
+        for k,v in pairs(t) do nt[k] = v end
+        return nt
+    end
+end
+
+Library.ShowToggleFrameInKeybinds = true 
+Library.ShowCustomCursor = true
+Library.NotifySide = "Right"
+
+local Window = Library:CreateWindow({
+    Title = 'NOL | Forsaken',
+    Footer = "Semi-British[國際化]",
+    Icon = 106397684977541,
+    Center = true,
+    AutoShow = true,
+    Resizable = true,
+    ShowCustomCursor = true,
+    NotifySide = "Right",
+    TabPadding = 8,
+    MenuFadeTime = 0
+})
+
+local Tabs = {
+    new = Window:AddTab('Announcement[公告]', 'user'),
+    Main = Window:AddTab('Main[主要]','house'),
+    Aimbot = Window:AddTab('Aimbot[自瞄]','earth'),
+    Esp = Window:AddTab('ESP[绘制]','eye'),
+    tzq = Window:AddTab('Notice[通知提示]','eye'),
+    ani = Window:AddTab('Anti-loophole[反效果]','earth'),
+    Max = Window:AddTab('Action[动作]','file'),
+    Sat = Window:AddTab('Physical[体力]','moon'),
+    zdg = Window:AddTab('Auto block[自动格挡]','file'),
+    zdx = Window:AddTab('Fix Generator[修机]','file'),
+    lol = Window:AddTab('Pizza[披萨]','earth'),
+    tfz = Window:AddTab('Killing[杀戮]','moon'),
+    mhg = Window:AddTab('skin[美化]','moon')
+}
+
+local _env = getgenv and getgenv() or {}
+local _hrp = game.Players.LocalPlayer.Character:WaitForChild("HumanoidRootPart")
+
+local new = Tabs.new:AddLeftGroupbox('最新公告')
+
+new:AddLabel("[+]NOL 中國最強Forsaken腳本")
+new:AddLabel("[+]修復大部分功能")
+new:AddLabel("[+]新增反效果漏洞")
+
+
+
+
+
+
+
+local KillerSurvival = Tabs.Main:AddLeftGroupbox("调节功能")
+
+game.Players.LocalPlayer.Character.Humanoid:GetPropertyChangedSignal("WalkSpeed"):Connect(function()
+    if _env.NoStun == true and game.Players.LocalPlayer.Character.Humanoid.WalkSpeed < 16 then
+        game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = 16
+    end
+end)
+
+game.Players.LocalPlayer.CharacterAdded:Connect(function()
+    game.Players.LocalPlayer.Character.Humanoid:GetPropertyChangedSignal("WalkSpeed"):Connect(function()
+        if _env.NoStun == true and game.Players.LocalPlayer.Character.Humanoid.WalkSpeed < 16 then
+            game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = 16
+        end
+    end)
+end)
+
+KillerSurvival:AddToggle("NS",{
+    Text = "去除前后摇",
+    Callback = function(v)
+        _env.NoStun = v
+    end
+})
+
+KillerSurvival:AddDivider()
+
+KillerSurvival:AddSlider("SB",{
+    Text = "速度调节",
+    Min = 0, Max = 3,
+    Default = 1, Compact = true,
+    Rounding = 1,
+    Callback = function(v)
+        _env.SpeedBoostValue = v
+    end
+})
+
+_env.SpeedBoostValue = 1
+
+KillerSurvival:AddToggle("SB",{
+    Text = "启用速度",
+    Callback = function(v)
+        _env.SpeedBoost = v
+        while _env.SpeedBoost do
+            game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame += game.Players.LocalPlayer.Character.Humanoid.MoveDirection * _env.SpeedBoostValue
+            game.Players.LocalPlayer.Character.HumanoidRootPart.CanCollide = true
+            task.wait()
+        end
+    end
+})
+
+KillerSurvival:AddToggle('MyToggle', {
+    Text = '顯示聊天框丨需要每局开一次',
+    Default = false,
+    Tooltip = '显示聊天框',
+    Callback = function(state)
+    if state then
+    game.TextChatService.ChatWindowConfiguration.Enabled = true
+    else
+    game.TextChatService.ChatWindowConfiguration.Enabled = false    
+    end
+    end
+})
+
+
+local MainTabbox = Tabs.Main:AddRightTabbox()
+local Lighting = MainTabbox:AddTab("亮度调节")
+
+Lighting:AddSlider("B",{
+    Text = "亮度数值",
+    Min = 0,
+    Default = 0,
+    Max = 3,
+    Rounding = 1,
+    Compact = true,
+    Callback = function(v)
+        _env.Brightness = v
+    end
+})
+
+Lighting:AddToggle("无阴影",{
+    Text = "无阴影",
+    Default = false,
+    Callback = function(v)
+        _env.GlobalShadows = v
+    end
+})
+
+Lighting:AddToggle("除雾",{
+    Text = "除雾",
+    Default = false,
+    Callback = function(v)
+        _env.NoFog = v
+    end
+})
+
+Lighting:AddDivider()
+
+Lighting:AddToggle("启用功能",{
+    Text = "启用",
+    Default = false,
+    Callback = function(v)
+        _env.Fullbright = v
+        game:GetService("RunService").RenderStepped:Connect(function()
+            if not game.Lighting:GetAttribute("FogStart") then 
+                game.Lighting:SetAttribute("FogStart", game.Lighting.FogStart) 
+            end
+            if not game.Lighting:GetAttribute("FogEnd") then 
+                game.Lighting:SetAttribute("FogEnd", game.Lighting.FogEnd) 
+            end
+            game
